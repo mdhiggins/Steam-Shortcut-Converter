@@ -1,11 +1,11 @@
-name: Build Windows EXE
+name: Build and Release Windows EXE
 
 on:
   push:
     branches: [ main ]
 
 jobs:
-  build:
+  build-and-release:
     runs-on: windows-latest
 
     steps:
@@ -26,8 +26,13 @@ jobs:
     - name: Build EXE with PyInstaller
       run: pyinstaller --onefile --name convert_steam_shortcut convert_steam_shortcut.py
 
-    - name: Upload EXE artifact
-      uses: actions/upload-artifact@v4
+    - name: Create Release and Upload EXE
+      uses: softprops/action-gh-release@v2
       with:
-        name: windows-exe
-        path: dist/convert_steam_shortcut.exe
+        files: dist/convert_steam_shortcut.exe
+        tag_name: auto-release-${{ github.sha }}  # Unique tag per commit
+        name: Auto Release ${{ github.sha }}
+        draft: false
+        prerelease: false
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
